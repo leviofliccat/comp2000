@@ -97,7 +97,7 @@ Class Animal {
 
 polymorphism:
 - The most common use of polymorphism in OOP occurs when a parent class (`Animal`) reference `a` is used to refer to a child class (`Deer`) object `d`. 
-- compile-time polymorphism - static polymorphism, multiple methods with the same name but different parameters
+- compile-time polymorphism - static polymorphism, multiple methods with the same name but different parameters - method overloading
 - runtime polymorphism - dynamic method dispatch, implemented by method overriding
 - An overridden method is essentially hidden in the parent class, and is not invoked unless the child class uses the super keyword within the overriding method.
 - virtual method invocation - if a subclass has the same method defined as a parent method, and we say `Employee e = new Salaryman();` and call `e.getSalary();`, it will call `getSalary()` for the Employee class at compile time, but then at run time the JVM will run it for the Salaryman class. therefore, an overridden method is always invoked at runtime, no matter the data type of the reference
@@ -107,5 +107,64 @@ ArrayLists:
 - take Objects/wrapper classes, not types (Integer not int, Character not char) for every primitive type there is a wrapper class for it. except for arrays - ArrayLists
 - in Java, String is a primitive type, but like a built in arraylist of chars
 Generics:
+- a class that takes another class as an argument e.g. `Class ArrayList<E>`
 - class and method definitions that include parameters for types - allows to write code that applies to any class
-- e.g. define a class for a list of items of type T, where T is a type parameter. then 
+- e.g. define a class for a list of items of type T, where T is a type parameter. then can pass a String class as type T, or an Integer class etc
+- when inheriting a class, the new class takes attribute, constructors, and methods.
+- if we have a class that is purely only to be inherited and built upon, never used by itself - e.g. generic Mammal, we can have specialised versions of it (Cat, Dog) but prevent from making an instance of the generic type. called an abstract class. `public abstract class MyClass`
+- `Class AbstractCollection<E>` 
+- a queue is a collection where there is ordering involved - set has no order - different kinds of collections.
+![making ArrayList points = new ArrayList();](arraylist.png)
+- boxing and unboxing - automatically converitng between primitive and wrapper types ( constuctor parameters)
+- to make generic, go to class definition and modify to take type variables. variables in place where we would typcially put types.
+- `public class Pair <T, P>` (convention is single letters i.e. `<E>`) - the identifier E between the angle brackets is a type variable. indicates that the class Pair is generic and requires a Java type as an arguent to make it complete. the type variable may be used to declare instance variables, arguments to methods, the return type of methods. this avoids overloading methods like `public void add (String s)` where an arbitrary `Object` type can still be accepted by the class.
+```
+public class List< E > {
+    ...
+    public void add( E element ) {...}
+    public E get( int i ) {...}
+}
+```
+- note static methods cannot use the type variable
+- now we can complete the `List` type by supplying any type parameter - called "instantiating the type" or "invoking the type"
+`List<Date> dates;`
+`List<java.math.BigDecimal> decimals;`
+`List<Foo> foos;` etc
+
+- everything in the system is an object - the angle brackets just add a constraint to the compilation process - once the type check is happy, the compiler is happy and forgets about it, so generates the same byte code in the end. thus, the following lines achieve essentially the same thing.
+- "erasure" - since everything we do with generics applies statically at compile-time, generic info does not need to be carried over into the compiled classes. the generic nature of the classes enforced by the compiler can be "erased" in the compiled classes, allowing us to maintain compatibility with nongeneric code. Java runtime does not know anything about generics at all, although the compiler retains generic informations.
+- generics are erased by the compiler for backwards compatibility.
+- all the generic safety checking was done at compile time, so at runtime we cannot tell the difference between one incarnation of List and another. we are dealing with a single List type. List is the "raw type" of the generic class e.g. `List<Date>` and `List<String>` share the Java class List, with the type variables replaced with a general Java type like Object.
+- how does the combination of static typing and erasure reduce the amount of polymorphism available in Java? the raw type of a generic class can be used to bypass the static type checks we would expect. at run time there is no way to get the checks back, because all the necessary type information has been erased.
+```
+ArrayList<Pair> p = new ArrayList<Pair>();
+ArrayList q = new ArrayList();
+```
+- generic type inference - the compiler is smart enough to infer the type of the initialising expression from the type of the variable we are assigning to it, helps shorthand the right side of variable declarations by leaving out the contents of the `<>`
+- `List` is an Interface, of which ArrayList implements. i.e. ArrayList implements the methods of the List Interface (add, remove, etc), which Sets, Queues, etc also have.
+- if we decide we want to use a linked list instead of arraylist, rather than changing every line, we can use the List interface and just change the instantiation: `List x = new ArrayList();` -> `List x = new LinkedList();`
+- however, we can place limitations or bounds on the parameter types, and the compiler can be more restrictive about the erasure of the type. can make something implement something from a class or below, or use an interface - but in Java, you use "extends" no matter whether it is an interface or superclass...? `public class List< E extends Date>` - the element type E must be a subtype of the `Date` type. therefore the method `public void addElement( Date element )` is therefore more restrictive than `Object` and the compiler uses `Date`. `Date` is called the "upper bound" of this type, meaning it is at the top of the object hierarchy here and the type can only be instantiated on type `Date` or on lower/more derived types.
+
+
+
+- inheritance applies only to the "base" generic type, and not to the parameter types. assignability applies only when the two generic types are instantiated on exactly the same parameter type.
+- e.g., recallling that a `List` is a type of `Collection`, we can assign instantiations of List to instantiations of Collection when the type parameter is EXACTLY the same:
+```
+Collection<Date> cd;
+List<Date> ld = new ArrayList<Date>();
+cd = ld; // Ok!
+```
+but:
+```
+List<Object> lo;
+List<Date> ld = new ArrayList<Date>();
+lo = ld; // Compile-time Error! Incompatible types.
+```
+- must be EXACTLY the same, so even trying to put `List<Integer>` into `Collection<Number>` will not work. inheritance does not follow parameter types.
+
+generic methods:
+- you can define a generic method that has its own type parameter that is not the type parameter of any class. this generic method can be a member of an ordinary class or some generic class with some other type parameter.
+- e.g. even if a class has no type parameters, its methods can have a type parameter in angular brackets placed after the modifiers and before the return type.
+`public <T> T getMidpoint(T[] a){...}`
+- when invoking a method like this, preface the method name with the type to be plugged in, given in angular brackets: `String midString = MyClass.<String>getMidpoint(b);`
+- can have different type parameters for the entire class (defined in the class definition) or for only the method (in method definition)

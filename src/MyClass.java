@@ -1,5 +1,5 @@
 package src;
 
-public class MyClass {
-
+public interface MyClass {
+    void paint();
 }
