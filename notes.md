@@ -168,3 +168,43 @@ generic methods:
 `public <T> T getMidpoint(T[] a){...}`
 - when invoking a method like this, preface the method name with the type to be plugged in, given in angular brackets: `String midString = MyClass.<String>getMidpoint(b);`
 - can have different type parameters for the entire class (defined in the class definition) or for only the method (in method definition)
+
+Practical:
+- create a List of actors rather than ArrayList, in case in the the future we want to change it to a collection or set etc.
+
+# week 5 - exceptions
+excption handking in a try/catch block:
+- code that might produce an error in the try block
+- if somethong goes wrong, do the catch block
+different kinds of exceptions:
+- exceptions are basically classes, with inheritance
+- error is unrecoverable e.g. out of resources
+- runtime exceptions
+- exceptions we can check for like IOexceptions, user defined exceptions - compile time
+- java.lang.ArithmeticException is the class pathhhhh
+- throwable flags to the ocmpiler that this block of code could generate an exception. everything that calls taht code, has to have a try/catch block to handle that possibility. now things like an ertihmatic exception are now going to be handled at compile time rather than runtime
+- `finally` block - even if there is an error or not, do this. happens before the try block throws an error. try block executes all the way up to the error line, then finally block, then error message
+```
+public static int m1() {
+    try {
+        System.out.println("other things");
+        int x = 9;
+        int y = 0;
+        return (x/y);
+    }
+    catch (Exception e) {
+        System.out.println("error happened");
+    }
+    finally {
+        System.out.println("finally happens first");
+    }
+    return 0;
+}
+```
+output:
+```
+other things
+error happened
+finally happens first
+made it
+```
